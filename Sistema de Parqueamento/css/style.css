@@ -1,0 +1,58 @@
+﻿:root {
+  --brand: #2563eb;
+  --brand-strong: #1d4ed8;
+  --brand-soft: #dbeafe;
+  --surface: #ffffff;
+  --panel: #f8fafc;
+  --border: #d1d5db;
+  --text: #334155;
+  --muted: #64748b;
+}
+body { background: var(--panel); color: var(--text); font-size: 14px; }
+.sidebar { width: 220px; min-height: 100vh; background: #0f172a; position: fixed; top: 0; left: 0; z-index: 100; }
+.sidebar .brand { padding: 16px; border-bottom: 1px solid rgba(255,255,255,.1); color: #fff; font-weight: 700; font-size: 1rem; }
+.sidebar .nav-section { font-size: .65rem; text-transform: uppercase; letter-spacing: 2px; color: rgba(255,255,255,.35); padding: 12px 16px 3px; }
+.sidebar .nav-link { color: rgba(255,255,255,.75); font-size: .84rem; padding: 9px 16px; display: flex; align-items: center; gap: 8px; cursor: pointer; border-left: 3px solid transparent; }
+.sidebar .nav-link:hover, .sidebar .nav-link.active { color: #fff; background: rgba(37,99,235,.16); border-left-color: var(--brand); }
+.main { margin-left: 220px; }
+.topbar { background: #fff; border-bottom: 1px solid #dee2e6; padding: 10px 24px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 50; }
+.page { display: none; padding: 24px; }
+.page.active { display: block; }
+.stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 18px; }
+.table thead th { font-size: .72rem; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); background: var(--panel); }
+.table td { font-size: .84rem; vertical-align: middle; }
+.btn-primary, .btn-success, .btn-warning { background-color: var(--brand); border-color: var(--brand); color: #fff; }
+.btn-primary:hover, .btn-success:hover, .btn-warning:hover { background-color: var(--brand-strong); border-color: var(--brand-strong); }
+.btn-outline-secondary { color: var(--brand); border-color: var(--brand); }
+.btn-outline-secondary:hover { background-color: var(--brand); color: #fff; }
+.badge.bg-success, .badge.bg-danger, .badge.bg-primary, .badge { background-color: var(--brand) !important; color: #fff !important; }
+.text-success, .text-primary, .text-danger, .text-purple { color: #000 !important; }
+.vaga-box { width: 68px; height: 68px; border-radius: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: .66rem; font-weight: 700; }
+.vaga-box.livre { background: #dbeafe; border: 1px solid #93c5fd; color: #1e40af; }
+.vaga-box.occ   { background: #e0f2fe; border: 1px solid #7dd3fc; color: #075985; }
+.vaga-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+.bar-bg { height: 18px; background: #e9ecef; border-radius: 4px; overflow: hidden; }
+.bar-fill { height: 100%; border-radius: 4px; transition: width .7s; display: flex; align-items: center; padding-left: 6px; font-size: .65rem; font-weight: 700; color: #fff; }
+.recibo { border: 2px dashed #ced4da; border-radius: 8px; padding: 20px; font-family: monospace; font-size: .82rem; max-width: 340px; margin: 0 auto; }
+.recibo-row { display: flex; justify-content: space-between; padding: 3px 0; border-bottom: 1px dotted #dee2e6; }
+.recibo-total { display: flex; justify-content: space-between; font-size: 1rem; font-weight: 700; border-top: 2px dashed #ced4da; margin-top: 8px; padding-top: 8px; }
+.alert-ocupacao { display: none; }
+.stat-large { font-size: 1.5rem; }
+.stat-xl { font-size: 1.7rem; }
+.table-scroll { max-height: 280px; overflow-y: auto; }
+.w-40 { width: 40%; }
+.filter-mat { width: 160px; }
+.filter-tipo { width: 150px; }
+.filter-est { width: 140px; }
+.history-scroll { max-height: 500px; overflow-y: auto; }
+.chart-label { display: inline-block; width: 28px; font-size: .72rem; color: #6c757d; text-align: right; }
+.chart-label-lg { display: inline-block; width: 58px; font-size: .72rem; color: #6c757d; text-align: right; overflow: hidden; white-space: nowrap; }
+.vaga-mat { font-size: .52rem; overflow: hidden; max-width: 64px; white-space: nowrap; text-overflow: ellipsis; display: inline-block; }
+.small-text { font-size: .75rem; }
+.recibo-header { text-align: center; border-bottom: 2px dashed #ced4da; padding-bottom: 12px; margin-bottom: 12px; }
+.recibo-title { font-size: 1.2rem; font-weight: 700; }
+.recibo-subtitle { font-size: .72rem; color: #6c757d; }
+.recibo-meta { font-size: .72rem; margin-top: 4px; }
+.recibo-number { font-weight: 700; margin-top: 2px; }
+.recibo-note { text-align: center; margin-top: 10px; font-size: .68rem; color: #adb5bd; }
+
