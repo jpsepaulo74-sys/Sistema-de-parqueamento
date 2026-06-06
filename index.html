@@ -1,0 +1,368 @@
+﻿<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gestão de Parque</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+  <div class="brand">Sistema de Parqueamento</div>
+  <div class="nav-section">Principal</div>
+  <div class="nav-link active" onclick="ir('dashboard')">Dashboard</div>
+  <div class="nav-link" onclick="ir('mapa')">Mapa de Vagas</div>
+  <div class="nav-section">Operações</div>
+  <div class="nav-link" onclick="ir('entrada')">Registo de Entrada</div>
+  <div class="nav-link" onclick="ir('saida')">Registo de Saída</div>
+  <div class="nav-section">Gestão</div>
+  <div class="nav-link" onclick="ir('viaturas')">Viaturas &amp; Tarifas</div>
+  <div class="nav-link" onclick="ir('relatorios')">Relatorios</div>
+  <div class="nav-link" onclick="ir('historico')">Historico</div>
+  <div class="nav-section">Administração</div>
+  <div class="nav-link" onclick="ir('utilizadores')">Utilizadores</div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="topbar">
+    <span id="topTitle" class="fw-semibold">Dashboard</span>
+    <div class="d-flex align-items-center gap-3">
+      <span id="alertaTopbar" class="badge bg-danger d-none">Parque quase lotado</span>
+      <small id="relogio" class="text-muted"></small>
+    </div>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div class="page active" id="pg-dashboard">
+    <div id="alertaGeral" class="alert alert-danger alert-ocupacao mb-3">
+      <strong>Alerta de Ocupasão:</strong> O parque atingiu menos de 10% de vagas livres!
+    </div>
+    <div class="row g-3 mb-4">
+      <div class="col-6 col-lg-3">
+        <div class="stat-card">
+          <div class="text-muted small mb-1">Total de Vagas</div>
+          <div class="fs-3 fw-bold" id="stTotal">50</div>
+        </div>
+      </div>
+      <div class="col-6 col-lg-3">
+        <div class="stat-card">
+          <div class="text-muted small mb-1">Vagas Livres</div>
+          <div class="fs-3 fw-bold text-success" id="stLivres">50</div>
+        </div>
+      </div>
+      <div class="col-6 col-lg-3">
+        <div class="stat-card">
+          <div class="text-muted small mb-1">Ocupadas</div>
+          <div class="fs-3 fw-bold text-danger" id="stOcup">0</div>
+        </div>
+      </div>
+      <div class="col-6 col-lg-3">
+        <div class="stat-card">
+          <div class="text-muted small mb-1">Receita Hoje</div>
+          <div class="fw-bold text-primary stat-large" id="stReceita">0 MT</div>
+        </div>
+      </div>
+    </div>
+    <div class="row g-3">
+      <div class="col-lg-7">
+        <div class="card">
+          <div class="card-header bg-white py-2 fw-semibold small">Ultimas Movimentos</div>
+          <div class="card-body p-0 table-scroll">
+            <table class="table table-sm mb-0">
+              <thead><tr><th>MatrÃ­cula</th><th>Tipo</th><th>Vaga</th><th>Estado</th><th>Hora</th></tr></thead>
+              <tbody id="dashMovs"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-5">
+        <div class="card h-100">
+          <div class="card-header bg-white py-2 fw-semibold small">Receita Semanal (MT)</div>
+          <div class="card-body" id="chartSem"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAPA DE VAGAS -->
+  <div class="page" id="pg-mapa">
+    <div class="d-flex align-items-center gap-3 mb-3">
+      <span class="badge bg-success">Livres: <span id="mapaLivres">.”</span></span>
+      <span class="badge bg-danger">Ocupadas: <span id="mapaOcup">.”</span></span>
+      <button class="btn btn-sm btn-outline-secondary ms-auto" onclick="renderMapa()">Actualizar</button>
+    </div>
+    <div class="card p-3">
+      <div class="vaga-grid" id="vagaGrid"></div>
+    </div>
+  </div>
+
+  <!-- REGISTO DE ENTRADA -->
+  <div class="page" id="pg-entrada">
+    <div class="row justify-content-center">
+      <div class="col-md-6 col-lg-5">
+        <div class="card p-4">
+          <h6 class="mb-3">Registar Entrada</h6>
+          <div class="mb-3">
+            <label class="form-label small fw-semibold">Matrícula *</label>
+            <input id="entMat" class="form-control" placeholder="AB-00-CD" oninput="this.value=this.value.toUpperCase()">
+          </div>
+          <div class="mb-3">
+            <label class="form-label small fw-semibold">Tipo de Viatura *</label>
+            <select id="entTipo" class="form-select" onchange="mostrarTarifa()"></select>
+          </div>
+          <div id="entTarifaInfo" class="alert alert-info py-2 px-3 small mb-3 d-none"></div>
+          <div class="mb-3">
+            <label class="form-label small fw-semibold">Vaga</label>
+            <div class="input-group">
+              <select id="entVaga" class="form-select"></select>
+              <button class="btn btn-outline-secondary" onclick="autoVaga()" title="AtribuiÃ§Ã£o automÃ¡tica"></button>
+            </div>
+            <div class="form-text">Clique no botÃ£o para atribuisão automatica.</div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label small fw-semibold">Data/Hora de Entrada</label>
+            <input id="entHora" class="form-control" type="datetime-local">
+          </div>
+          <button class="btn btn-success w-100" onclick="doEntrada()">Confirmar Entrada</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- REGISTO DE SAÃDA -->
+  <div class="page" id="pg-saida">
+    <div class="row justify-content-center">
+      <div class="col-md-6 col-lg-5">
+        <div class="card p-4">
+          <h6 class="mb-3">Registar SaÃ­da</h6>
+          <div class="mb-3">
+            <label class="form-label small fw-semibold">MatrÃ­cula *</label>
+            <div class="input-group">
+              <input id="saiMat" class="form-control" placeholder="AB-00-CD" oninput="this.value=this.value.toUpperCase()">
+              <button class="btn btn-primary" onclick="buscarSaida()"></button>
+            </div>
+          </div>
+          <div id="saidaPanel" class="d-none">
+            <table class="table table-sm table-bordered mb-3">
+              <tbody>
+                <tr><th class="w-40">Tipo de Viatura</th><td id="saiTipo">MT”</td></tr>
+                <tr><th>Vaga</th><td id="saiVaga">MT”</td></tr>
+                <tr><th>Entrada</th><td id="saiEntrada">MT”</td></tr>
+                <tr><th>Permanencia</th><td id="saiTempo" class="text-primary fw-bold">MT”</td></tr>
+                <tr><th>Valor a Cobrar</th><td id="saiValor" class="text-success fw-bold fs-5">MT”</td></tr>
+              </tbody>
+            </table>
+            <button class="btn btn-warning w-100 fw-bold" onclick="doSaida()">
+              Confirmar Pagamento &amp; Emitir Recibo
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- VIATURAS & TARIFAS -->
+  <div class="page" id="pg-viaturas">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <span class="fw-semibold">Tipos de Viaturas &amp; Tarifas</span>
+      <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#mdViat">Novo Tipo</button>
+    </div>
+    <div class="card">
+      <div class="table-responsive">
+        <table class="table mb-0">
+          <thead><tr><th>Tipo</th><th>Descrição</th><th>Hora (MT)</th><th>Dia (MT)</th><th>Mês (MT)</th><th>Ações</th></tr></thead>
+          <tbody id="tblViat"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- RELATÃ“RIOS -->
+  <div class="page" id="pg-relatorios">
+    <div class="row g-3 mb-4">
+      <div class="col-md-4">
+        <div class="stat-card">
+          <div class="text-muted small mb-1">Receita Hoje</div>
+          <div class="fw-bold text-primary stat-xl" id="relHoje">0 MT</div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="stat-card">
+          <div class="text-muted small mb-1">Receita Este Mes</div>
+          <div class="fw-bold text-purple stat-xl" id="relMes">0 MT</div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="stat-card">
+          <div class="text-muted small mb-1">Receita Este Ano</div>
+          <div class="fw-bold text-success stat-xl" id="relAno">0 MT</div>
+        </div>
+      </div>
+    </div>
+    <div class="row g-3">
+      <div class="col-md-6">
+        <div class="card p-3">
+          <div class="fw-semibold small mb-3">Por Tipo de Viatura (mês corrente)</div>
+          <div id="chartTipo"></div>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="card p-3">
+          <div class="fw-semibold small mb-3">Últimos 7 Dias</div>
+          <div id="chartDias"></div>
+        </div>
+      </div>
+    </div>
+    <div class="mt-3 d-flex gap-2">
+      <button class="btn btn-sm btn-outline-secondary" onclick="exportCSV()">Exportar CSV</button>
+      <button class="btn btn-sm btn-outline-secondary" onclick="exportJSON()">Exportar JSON</button>
+    </div>
+  </div>
+
+  <!-- HISTÃ“RICO -->
+  <div class="page" id="pg-historico">
+    <div class="d-flex flex-wrap gap-2 mb-3 align-items-center">
+      <input id="filtMat" class="form-control form-control-sm filter-mat" placeholder="Filtrar matrÃ­cula" oninput="renderHistorico()">
+      <select id="filtTipo" class="form-select form-select-sm filter-tipo" onchange="renderHistorico()">
+        <option value="">Todos os tipos</option>
+      </select>
+      <select id="filtEst" class="form-select form-select-sm filter-est" onchange="renderHistorico()">
+        <option value="">Todos</option>
+        <option value="activo">Em curso</option>
+        <option value="enc">Encerrados</option>
+      </select>
+    </div>
+    <div class="card">
+      <div class="table-responsive history-scroll">
+        <table class="table table-sm mb-0">
+          <thead><tr><th>Matrícula</th><th>Tipo</th><th>Vaga</th><th>Entrada</th>
+            <th>Saída</th><th>Duração</th><th>Valor</th><th>Estado</th></tr></thead>
+          <tbody id="tblHist"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- UTILIZADORES -->
+  <div class="page" id="pg-utilizadores">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <span class="fw-semibold">Gestão de Utilizadores</span>
+      <button class="btn btn-sm btn-primary" onclick="abrirModalUser()">Novo Utilizador</button>
+    </div>
+    <div class="card">
+      <table class="table mb-0">
+        <thead><tr><th>Nome</th><th>Login</th><th>Perfil</th><th>Estado</th><th>Ações</th></tr></thead>
+        <tbody id="tblUsers"></tbody>
+      </table>
+    </div>
+  </div>
+
+</div><!-- /main -->
+
+<!-- MODAL RECIBO -->
+<div class="modal fade" id="mdRecibo" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header py-2">
+        <h6 class="modal-title mb-0">Recibo Digital</h6>
+        <button class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body" id="reciboBody"></div>
+      <div class="modal-footer py-2">
+        <button class="btn btn-sm btn-outline-secondary" onclick="window.print()">Imprimir</button>
+        <button class="btn btn-sm btn-primary" data-bs-dismiss="modal">Fechar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL VIATURA -->
+<div class="modal fade" id="mdViat" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header py-2">
+        <h6 class="modal-title mb-0">Tipo de Viatura</h6>
+        <button class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="vId">
+        <div class="mb-2"><label class="form-label small fw-semibold">Nome *</label><input id="vNome" class="form-control" placeholder="ex: Ligeiro"></div>
+        <div class="mb-2"><label class="form-label small fw-semibold">Descrição</label><input id="vDesc" class="form-control" placeholder="ex: Automóvel de passageiros"></div>
+        <div class="row g-2">
+          <div class="col-4"><label class="form-label small fw-semibold">Hora (MT)</label><input id="vH" class="form-control" type="number" min="0" value="0"></div>
+          <div class="col-4"><label class="form-label small fw-semibold">Dia (MT)</label><input id="vD" class="form-control" type="number" min="0" value="0"></div>
+          <div class="col-4"><label class="form-label small fw-semibold">Mes (MT)</label><input id="vM" class="form-control" type="number" min="0" value="0"></div>
+        </div>
+      </div>
+      <div class="modal-footer py-2">
+        <button class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button class="btn btn-sm btn-primary" onclick="salvarViatura()">Guardar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL TARIFA -->
+<div class="modal fade" id="mdTar" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header py-2">
+        <h6 class="modal-title mb-0">Editar Tarifa” <span id="tarNome"></span></h6>
+        <button class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="tId">
+        <div class="row g-2">
+          <div class="col-4"><label class="form-label small fw-semibold">Hora (MT)</label><input id="tH" class="form-control" type="number" min="0"></div>
+          <div class="col-4"><label class="form-label small fw-semibold">Dia (MT)</label><input id="tD" class="form-control" type="number" min="0"></div>
+          <div class="col-4"><label class="form-label small fw-semibold">Mes (MT)</label><input id="tM" class="form-control" type="number" min="0"></div>
+        </div>
+      </div>
+      <div class="modal-footer py-2">
+        <button class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button class="btn btn-sm btn-primary" onclick="salvarTarifa()">Guardar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL USER -->
+<div class="modal fade" id="mdUser" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header py-2">
+        <h6 class="modal-title mb-0">Utilizador</h6>
+        <button class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="uId">
+        <div class="mb-2"><label class="form-label small fw-semibold">Nome *</label><input id="uNome" class="form-control"></div>
+        <div class="mb-2"><label class="form-label small fw-semibold">Login *</label><input id="uLogin" class="form-control"></div>
+        <div class="mb-2"><label class="form-label small fw-semibold">Senha *</label><input id="uSenha" class="form-control" type="password"></div>
+        <div><label class="form-label small fw-semibold">Perfil</label>
+          <select id="uPerfil" class="form-select">
+            <option value="operador">Operador</option>
+            <option value="admin">Administrador</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer py-2">
+        <button class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button class="btn btn-sm btn-primary" onclick="salvarUser()">Guardar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="css/javascript/app.js"></script>
+</body>
+</html>
+
+
+
+
