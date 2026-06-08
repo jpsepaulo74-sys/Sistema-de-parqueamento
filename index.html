@@ -13,7 +13,7 @@
 <div class="sidebar">
   <div class="brand">Sistema de Parqueamento</div>
   <div class="nav-section">Principal</div>
-  <div class="nav-link active" onclick="ir('dashboard')">Dashboard</div>
+  <div class="nav-link active" onclick="ir('dashboard')">Inicio</div>
   <div class="nav-link" onclick="ir('mapa')">Mapa de Vagas</div>
   <div class="nav-section">Operações</div>
   <div class="nav-link" onclick="ir('entrada')">Registo de Entrada</div>
@@ -22,14 +22,13 @@
   <div class="nav-link" onclick="ir('viaturas')">Viaturas &amp; Tarifas</div>
   <div class="nav-link" onclick="ir('relatorios')">Relatorios</div>
   <div class="nav-link" onclick="ir('historico')">Historico</div>
-  <div class="nav-section">Administração</div>
-  <div class="nav-link" onclick="ir('utilizadores')">Utilizadores</div>
+ 
 </div>
 
 <!-- MAIN -->
 <div class="main">
   <div class="topbar">
-    <span id="topTitle" class="fw-semibold">Dashboard</span>
+    <span id="topTitle" class="fw-semibold">Inicio</span>
     <div class="d-flex align-items-center gap-3">
       <span id="alertaTopbar" class="badge bg-danger d-none">Parque quase lotado</span>
       <small id="relogio" class="text-muted"></small>
@@ -45,13 +44,13 @@
       <div class="col-6 col-lg-3">
         <div class="stat-card">
           <div class="text-muted small mb-1">Total de Vagas</div>
-          <div class="fs-3 fw-bold" id="stTotal">50</div>
+          <div class="fs-3 fw-bold" id="stTotal">0</div>
         </div>
       </div>
       <div class="col-6 col-lg-3">
         <div class="stat-card">
           <div class="text-muted small mb-1">Vagas Livres</div>
-          <div class="fs-3 fw-bold text-success" id="stLivres">50</div>
+          <div class="fs-3 fw-bold text-success" id="stLivres">0</div>
         </div>
       </div>
       <div class="col-6 col-lg-3">
@@ -67,24 +66,19 @@
         </div>
       </div>
     </div>
-    <div class="row g-3">
-      <div class="col-lg-7">
+    <div class="row g-3 justify-content-center">
+      <div class="col-lg-7 mx-auto">
         <div class="card">
           <div class="card-header bg-white py-2 fw-semibold small">Ultimas Movimentos</div>
           <div class="card-body p-0 table-scroll">
             <table class="table table-sm mb-0">
-              <thead><tr><th>MatrÃ­cula</th><th>Tipo</th><th>Vaga</th><th>Estado</th><th>Hora</th></tr></thead>
+              <thead><tr><th>Matri­cula</th><th>Tipo</th><th>Vaga</th><th>Estado</th><th>Hora</th></tr></thead>
               <tbody id="dashMovs"></tbody>
             </table>
-          </div>
+          </div>  
         </div>
       </div>
-      <div class="col-lg-5">
-        <div class="card h-100">
-          <div class="card-header bg-white py-2 fw-semibold small">Receita Semanal (MT)</div>
-          <div class="card-body" id="chartSem"></div>
-        </div>
-      </div>
+    
     </div>
   </div>
 
@@ -107,11 +101,11 @@
         <div class="card p-4">
           <h6 class="mb-3">Registar Entrada</h6>
           <div class="mb-3">
-            <label class="form-label small fw-semibold">Matrícula *</label>
+            <label class="form-label small fw-semibold">Matrícula </label>
             <input id="entMat" class="form-control" placeholder="AB-00-CD" oninput="this.value=this.value.toUpperCase()">
           </div>
           <div class="mb-3">
-            <label class="form-label small fw-semibold">Tipo de Viatura *</label>
+            <label class="form-label small fw-semibold">Tipo de Viatura </label>
             <select id="entTipo" class="form-select" onchange="mostrarTarifa()"></select>
           </div>
           <div id="entTarifaInfo" class="alert alert-info py-2 px-3 small mb-3 d-none"></div>
@@ -121,7 +115,7 @@
               <select id="entVaga" class="form-select"></select>
               <button class="btn btn-outline-secondary" onclick="autoVaga()" title="AtribuiÃ§Ã£o automÃ¡tica"></button>
             </div>
-            <div class="form-text">Clique no botÃ£o para atribuisão automatica.</div>
+            <div class="form-text">Clique no botões para atribuisão automatica.</div>
           </div>
           <div class="mb-3">
             <label class="form-label small fw-semibold">Data/Hora de Entrada</label>
@@ -138,9 +132,9 @@
     <div class="row justify-content-center">
       <div class="col-md-6 col-lg-5">
         <div class="card p-4">
-          <h6 class="mb-3">Registar SaÃ­da</h6>
+          <h6 class="mb-3">Registar Saida</h6>
           <div class="mb-3">
-            <label class="form-label small fw-semibold">MatrÃ­cula *</label>
+            <label class="form-label small fw-semibold">Matricula </label>
             <div class="input-group">
               <input id="saiMat" class="form-control" placeholder="AB-00-CD" oninput="this.value=this.value.toUpperCase()">
               <button class="btn btn-primary" onclick="buscarSaida()"></button>
@@ -218,8 +212,7 @@
       </div>
     </div>
     <div class="mt-3 d-flex gap-2">
-      <button class="btn btn-sm btn-outline-secondary" onclick="exportCSV()">Exportar CSV</button>
-      <button class="btn btn-sm btn-outline-secondary" onclick="exportJSON()">Exportar JSON</button>
+
     </div>
   </div>
 
@@ -248,19 +241,7 @@
   </div>
 
   <!-- UTILIZADORES -->
-  <div class="page" id="pg-utilizadores">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-      <span class="fw-semibold">Gestão de Utilizadores</span>
-      <button class="btn btn-sm btn-primary" onclick="abrirModalUser()">Novo Utilizador</button>
-    </div>
-    <div class="card">
-      <table class="table mb-0">
-        <thead><tr><th>Nome</th><th>Login</th><th>Perfil</th><th>Estado</th><th>Ações</th></tr></thead>
-        <tbody id="tblUsers"></tbody>
-      </table>
-    </div>
-  </div>
-
+  
 </div><!-- /main -->
 
 <!-- MODAL RECIBO -->
@@ -290,7 +271,7 @@
       </div>
       <div class="modal-body">
         <input type="hidden" id="vId">
-        <div class="mb-2"><label class="form-label small fw-semibold">Nome *</label><input id="vNome" class="form-control" placeholder="ex: Ligeiro"></div>
+        <div class="mb-2"><label class="form-label small fw-semibold">Nome </label><input id="vNome" class="form-control" placeholder="ex: Ligeiro"></div>
         <div class="mb-2"><label class="form-label small fw-semibold">Descrição</label><input id="vDesc" class="form-control" placeholder="ex: Automóvel de passageiros"></div>
         <div class="row g-2">
           <div class="col-4"><label class="form-label small fw-semibold">Hora (MT)</label><input id="vH" class="form-control" type="number" min="0" value="0"></div>
@@ -340,9 +321,9 @@
       </div>
       <div class="modal-body">
         <input type="hidden" id="uId">
-        <div class="mb-2"><label class="form-label small fw-semibold">Nome *</label><input id="uNome" class="form-control"></div>
-        <div class="mb-2"><label class="form-label small fw-semibold">Login *</label><input id="uLogin" class="form-control"></div>
-        <div class="mb-2"><label class="form-label small fw-semibold">Senha *</label><input id="uSenha" class="form-control" type="password"></div>
+        <div class="mb-2"><label class="form-label small fw-semibold">Nome </label><input id="uNome" class="form-control"></div>
+        <div class="mb-2"><label class="form-label small fw-semibold">Login </label><input id="uLogin" class="form-control"></div>
+        <div class="mb-2"><label class="form-label small fw-semibold">Senha </label><input id="uSenha" class="form-control" type="password"></div>
         <div><label class="form-label small fw-semibold">Perfil</label>
           <select id="uPerfil" class="form-select">
             <option value="operador">Operador</option>
