@@ -1,67 +1,42 @@
 ﻿/* ===== ESTADO ===== */
-const D = {
-  totalVagas: 50,
-  vagas: [],
-  viaturas: [
-    { id:1, nome:'Ligeiro',  desc:'AutomÃ³vel de passageiros', hora:50,  dia:300, mes:5000 },
-    { id:2, nome:'Pesado',   desc:'CaminhÃ£o / autocarro',      hora:100, dia:600, mes:9000 },
-    { id:3, nome:'Moto',     desc:'Motociclo / scooter',       hora:20,  dia:120, mes:2000 },
-    { id:4, nome:'SUV/4x4',  desc:'VeÃ­culo todo-o-terreno',   hora:70,  dia:400, mes:6500 },
-  ],
-  ocupacoes: [],
-  historico: [],
-  users: [
-    { id:1, nome:'Administrador', login:'admin',    senha:'admin123', perfil:'admin',    ativo:true },
-    { id:2, nome:'Operador',      login:'operador', senha:'op123',    perfil:'operador', ativo:true },
-  ],
-};
+const D = { totalVagas: 12, vagas: [], ocupacoes: [], viaturas: [
+  { id:1, nome:'Ligeiro', hora:50 }, { id:2, nome:'Moto', hora:20 }, { id:3, nome:'Pesado', hora:100 }
+] };
 
-/* ===== SEED DEMO ===== */
-(function seed() {
-  for (let i = 1; i <= D.totalVagas; i++) D.vagas.push({ num:i, livre:true, mat:null, tipo:null });
-  const now   = new Date();
-  const mats  = ['MBQ-1234','MPT-5678','MTL-9012','MMZ-3456','MPE-7890','MAT-2211'];
-  const tipos = ['Ligeiro','Moto','SUV/4x4','Ligeiro','Pesado','Moto'];
-  for (let i = 0; i < 6; i++) {
-    const ent  = new Date(now - i * 3600000 - Math.random() * 1800000);
-    const pago = i >= 2;
-    const sai  = pago ? new Date(ent.getTime() + (Math.floor(Math.random()*3)+1) * 3600000) : null;
-    const vt   = D.viaturas.find(v => v.nome === tipos[i]);
-    const hrs  = sai ? Math.max(1, Math.ceil((sai - ent) / 3600000)) : null;
-    const val  = sai ? hrs * vt.hora : null;
-    const r    = { id: Date.now() - i*999, mat: mats[i], tipo: tipos[i], vaga: i+1, entrada: ent, saida: sai, horas: hrs, valor: val };
-    D.historico.push(r);
-    if (!pago) {
-      D.ocupacoes.push(r);
-      D.vagas[i].livre = false; D.vagas[i].mat = mats[i]; D.vagas[i].tipo = tipos[i];
-    }
-  }
-})();
+function seed(){ for(let i=1;i<=D.totalVagas;i++) D.vagas.push({num:i, livre:true}); }
+function el(id){ return document.getElementById(id); }
 
-/* ===== NAVEGAÃ‡ÃƒO ===== */
-const TITULOS = {
-  dashboard:'Dashboard', mapa:'Mapa de Vagas', entrada:'Registo de Entrada',
-  saida:'Registo de SaÃ­da', viaturas:'Viaturas & Tarifas',
-  relatorios:'RelatÃ³rios Financeiros', historico:'HistÃ³rico de MovimentaÃ§Ãµes',
-  utilizadores:'GestÃ£o de Utilizadores'
-};
-function ir(pg) {
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
-  document.getElementById('pg-' + pg).classList.add('active');
-  document.getElementById('topTitle').textContent = TITULOS[pg] || pg;
-  document.querySelectorAll('.nav-link').forEach(l => {
-    if (l.getAttribute('onclick') && l.getAttribute('onclick').includes("'" + pg + "'")) l.classList.add('active');
-  });
-  const acoes = {
-    dashboard: renderDashboard, mapa: renderMapa, entrada: initEntrada,
-    saida: initSaida, viaturas: renderViaturas, relatorios: renderRelatorios,
-    historico: () => { preencherFiltros(); renderHistorico(); },
-    utilizadores: renderUsers
-  };
-  if (acoes[pg]) acoes[pg]();
-  checarAlerta();
+function renderVagas(){ const g=el('vagaGrid'); g.innerHTML=''; D.vagas.forEach(v=>{ const d=document.createElement('div'); d.className='vaga'+(v.livre?'':' occ'); d.textContent='V'+String(v.num).padStart(2,'0'); g.appendChild(d); }); }
+function renderOcup(){ const u=el('ocupList'); u.innerHTML=''; D.ocupacoes.forEach(o=>{ const li=document.createElement('li'); li.textContent=`${o.mat} → V${String(o.vaga).padStart(2,'0')} (${o.tipo})`; u.appendChild(li); }); }
+
+function init(){ seed(); renderVagas(); renderOcup();
+  // populate selects
+  const s=el('entTipo'); s.innerHTML='<option value="">-- Selecionar --</option>'+D.viaturas.map(v=>`<option value="${v.id}">${v.nome}</option>`).join('');
+  const sv=el('entVaga'); sv.innerHTML = D.vagas.map(v=>`<option value="${v.num}">V${String(v.num).padStart(2,'0')}</option>`).join('');
+  el('entHora').value = new Date().toISOString().slice(0,16);
 }
+
+el('btnAutoVaga').addEventListener('click', ()=>{
+  const l = D.vagas.find(v=>v.livre);
+  if(!l){ alert('Sem vagas'); return; }
+  el('entVaga').value = l.num;
+});
+
+el('frmEntrada').addEventListener('submit', (ev)=>{
+  ev.preventDefault();
+  const mat = el('entMat').value.trim().toUpperCase();
+  const tipoId = parseInt(el('entTipo').value);
+  const vaga = parseInt(el('entVaga').value);
+  if(!mat||!tipoId||!vaga){ alert('Preencha todos os campos'); return; }
+  if(D.ocupacoes.find(o=>o.mat===mat)){ alert('Matrícula já no parque'); return; }
+  const vt = D.viaturas.find(v=>v.id===tipoId);
+  const r = { id:Date.now(), mat, tipo: vt.nome, vaga, entrada: new Date() };
+  D.ocupacoes.push(r); D.vagas[vaga-1].livre=false; renderVagas(); renderOcup();
+  alert('Entrada registada: '+mat+' → V'+String(vaga).padStart(2,'0'));
+  el('frmEntrada').reset(); el('entHora').value = new Date().toISOString().slice(0,16);
+});
+
+init();
 
 /* ===== RELÃ“GIO ===== */
 setInterval(() => {
@@ -396,7 +371,7 @@ function abrirModalUser() {
   document.getElementById('uId').value = '';
   ['uNome','uLogin','uSenha'].forEach(i => document.getElementById(i).value = '');
   document.getElementById('uPerfil').value = 'operador';
-  new.bootstrap.Modal(document.getElementById('mdUser')).show();
+  new bootstrap.Modal(document.getElementById('mdUser')).show();
 }
 function editUser(id) {
   const u = D.users.find(x => x.id === id);
@@ -443,4 +418,12 @@ function toast(msg, type='success') {
 
 /* ===== ARRANQUE ===== */
 renderDashboard();
+// Ensure entrada form is initialized and button wired (defensive for static hosting)
+try {
+  if (typeof initEntrada === 'function') initEntrada();
+  const btn = document.getElementById('btnConfirmEntrada');
+  if (btn) btn.addEventListener('click', (e) => { e.preventDefault(); try { doEntrada(); } catch(err) { console.error('doEntrada error', err); toast('Erro ao registar entrada','danger'); } });
+} catch (e) {
+  console.warn('Entrada init failed', e);
+}
 
